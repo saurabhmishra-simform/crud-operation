@@ -38,8 +38,15 @@
                 <textarea class="form-control" id="description" rows="3"></textarea>
             </div>
             <div class="col-12">
-                <button type="button" class="btn btn-primary" onclick="formData()" id="submitbtn">Submit</button>
+                <button type="button" class="btn btn-primary" onclick="formData()">Submit</button>
             </div>
+        </form>
+    </div>
+    <hr>
+    <div class="container my-2">
+        <form action="#">
+            <input type="text" id="dataFilter" placeholder="Enter id to search">
+            <button type="button" class="btn btn-primary" onclick="search()" id="">search</button>
         </form>
     </div>
     <div class="container my-7">
@@ -60,6 +67,9 @@
         </table>
     </div>
 
+    <div id="editdata">
+
+    </div>
     <script src="js/main.js"></script>
 </body>
 
