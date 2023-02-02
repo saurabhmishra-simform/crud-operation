@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,7 +9,6 @@
     <title>JQuery, CRUD Operation</title>
     <script src="js/jquery-3.6.3.min.js"></script>
 </head>
-
 <body>
     <div class="container my-3">
         <h1 class="text-center"><u><i>Product Management system</i></u></h1>
@@ -19,23 +17,23 @@
         <form action="#" method="post" class="row g-3">
             <div class="col-md-6">
                 <label for="productId" class="form-label">Product ID</label>
-                <input type="text" class="form-control" name="productId" id="productId">
+                <input type="text" class="form-control" name="productId" id="productId" required>
             </div>
             <div class="col-md-6">
                 <label for="ProductName" class="form-label">Product Name</label>
-                <input type="text" class="form-control" name="ProductName" id="ProductName">
+                <input type="text" class="form-control" name="ProductName" id="ProductName" required>
             </div>
             <div class="col-md-6">
                 <label for="selectImage" class="form-label"> Select Image</label>
-                <input class="form-control" type="file" id="image">
+                <input class="form-control" type="file" id="image" required>
             </div>
             <div class="col-md-6">
                 <label for="Price" class="form-label">Price</label>
-                <input type="text" class="form-control" id="price">
+                <input type="text" class="form-control" id="price" required>
             </div>
             <div class="col-12">
                 <label for="Description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" rows="3"></textarea>
+                <textarea class="form-control" id="description" rows="3" required></textarea>
             </div>
             <div class="col-12">
                 <button type="button" class="btn btn-primary" onclick="formData()">Submit</button>
@@ -46,7 +44,7 @@
     <div class="container my-2">
         <form action="#">
             <input type="text" id="dataFilter" placeholder="Enter id to search">
-            <button type="button" class="btn btn-primary" onclick="search()" id="">search</button>
+            <button type="button" class="btn btn-primary" onclick="getStoreData(this.id)" id="ser">search</button>
         </form>
     </div>
     <div class="container my-7">
@@ -54,23 +52,20 @@
             <thead>
                 <tr>
                     <th scope="col">Product ID</th>
-                    <th scope="col">Product Name</th>
+                    <th scope="col" onclick="getStoreData(this.id)" id="pName">Product Name</th>
                     <th scope="col">Image</th>
-                    <th scope="col">Price</th>
+                    <th scope="col" onclick="getStoreData(this.id)" id="pricePro">Price</th>
                     <th scope="col">Description</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody id="proDetails">
-
             </tbody>
         </table>
     </div>
-
     <div id="editdata">
-
     </div>
+    <!--js files-->
     <script src="js/main.js"></script>
 </body>
-
 </html>
