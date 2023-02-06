@@ -9,8 +9,13 @@ var proDecpt;
 var pro;
 var data;
 var sortArr = [];
+var count = 0;
 //defult data show
-getStoreData(0)
+if(count == 0)
+{
+    getStoreData(0)
+}
+
 //store data function
 function formData() {
     getFormValue();
@@ -62,7 +67,15 @@ function getStoreData(dataStore) {
                 cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + ser + "'>Update</button> <button class='btn btn-primary' onclick='productDelete(this.id)' id='" + ser + "'>Delete</button>";
             }
             else {
-                cell.innerHTML = data[j];
+                cell.innerHTML = data[j];  
+            }
+        }
+        var tbodyRowCount = table.rows.length;
+        for(let i=0;i<tbodyRowCount;i++)
+        {
+            if(i>0)
+            {
+                table.rows[i].style.display = "none";
             }
         }
     }
@@ -73,14 +86,21 @@ function getStoreData(dataStore) {
             var row = table.insertRow(i);
             var data = JSON.parse(localStorage.getItem(pro));
             sortArr.push(data[1]);
-            sortArr.sort();
+        }
+        sortArr.sort()
+        console.log(sortArr.sort()[0]);
+        for (let i = 0; i < getVal; i++) {
+            pro = "productValue" + i;
+            var row = table.insertRow(i);
+            var data = JSON.parse(localStorage.getItem(pro));
             for (let j = 0; j < data.length + 1; j++) {
                 var cell = row.insertCell(j);
-                if (j == 2) {
-                    cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
+                var st = sortArr[j];
+                if (j == 1) {
+                    cell.innerHTML = st;
                 }
-                else if (j == 1) {
-                    cell.innerHTML = sortArr[j]
+                else if (j == 2) {
+                    cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
                 }
                 else if (j == 5) {
                     cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Update</button> <button class='btn btn-primary' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
@@ -118,9 +138,14 @@ function getStoreData(dataStore) {
     }
     else { //defult all local data display
         getVal = btnValueGet(); 
+        console.log(count);
         for (let i = 0; i < getVal; i++) {
             pro = "productValue" + i;
             var row = table.insertRow(i);
+            if(count == 1)
+            {
+                row.style.display = "none";
+            }
             var data = JSON.parse(localStorage.getItem(pro));
             for (let j = 0; j < data.length + 1; j++) {
                 var cell = row.insertCell(j);
@@ -136,6 +161,7 @@ function getStoreData(dataStore) {
             }
         }
     }
+    count = 1;
 }
 //product delete function
 function productDelete(pro) {
@@ -165,19 +191,19 @@ function editData() {
                                                                 </div>
                                                                 <div class="col-md-6">
                                                                     <label for="ProductName" class="form-label">Product Name</label>
-                                                                    <input type="text" class="form-control" name="ProductName" id="editProName">
+                                                                    <input type="text" class="form-control" name="ProductName" id="editProName" required>
                                                                 </div>
                                                                 <div class="col-md-6">
                                                                     <label for="selectImage" class="form-label"> Select Image</label>
-                                                                    <input class="form-control" type="file" id="editimage">
+                                                                    <input class="form-control" type="file" id="editimage" required>
                                                                 </div>
                                                                 <div class="col-md-6">
                                                                     <label for="Price" class="form-label">Price</label>
-                                                                    <input type="text" class="form-control" id="editprice">
+                                                                    <input type="text" class="form-control" id="editprice" required>
                                                                 </div>
                                                                 <div class="col-12">
                                                                     <label for="Description" class="form-label">Description</label>
-                                                                    <textarea class="form-control" id="editdescription" rows="3"></textarea>
+                                                                    <textarea class="form-control" id="editdescription" rows="3" required></textarea>
                                                                 </div>
                                                                 <div class="col-12">
                                                                     <button type="button" class="btn btn-primary" onclick="setEditdata()">Submit</button>
@@ -207,6 +233,7 @@ function setEditdata() {
     createArray();
     if (pro) {
         localStorage.setItem(pro, JSON.stringify(proArray));
+        alert("Recorde Updated!!");
     }
 }
 //set key value
