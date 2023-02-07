@@ -9,13 +9,38 @@ var proDecpt;
 var pro;
 var data;
 var sortArr = [];
-var count = 0;
 //defult data show
-if(count == 0)
-{
-    getStoreData(0)
-}
+getStoreData(0)
 
+function validateform(id) {
+    getFormValue();
+    var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.jfif|\.gif)$/i;
+    if (isNaN(proId) || proId < 1) {
+        document.getElementById('errorMessageId').innerText = "Please input a number only!!";
+    }
+    else if (proName == null || proName == "") {
+        document.getElementById('errorMessageName').innerText = "Please input a product name!!";
+    }
+    else if(!allowedExtensions.exec(proImage))
+    {
+        document.getElementById('errorMessageImage').innerText = "File type is not allowed!!";
+        proImage.value = '';
+        return false;
+    }
+    else if (isNaN(proPrice) || proPrice < 1) {
+        document.getElementById('errorMessagePrice').innerText = "Please input a number only!!";
+    }
+    else {
+        if(id=='add')
+        {
+            formData();
+        }
+        else
+        {
+            setEditdata(); 
+        }
+    }
+}
 //store data function
 function formData() {
     getFormValue();
@@ -63,18 +88,19 @@ function getStoreData(dataStore) {
             if (j == 2) {
                 cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
             }
+            else if (j == 3) {
+                cell.innerHTML = "₹ " + data[j];
+            }
             else if (j == 5) {
-                cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + ser + "'>Update</button> <button class='btn btn-primary' onclick='productDelete(this.id)' id='" + ser + "'>Delete</button>";
+                cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + ser + "'>Edit</button> <button class='btn btn-dander' onclick='productDelete(this.id)' id='" + ser + "'>Delete</button>";
             }
             else {
-                cell.innerHTML = data[j];  
+                cell.innerHTML = data[j];
             }
         }
         var tbodyRowCount = table.rows.length;
-        for(let i=0;i<tbodyRowCount;i++)
-        {
-            if(i>0)
-            {
+        for (let i = 0; i < tbodyRowCount; i++) {
+            if (i > 0) {
                 table.rows[i].style.display = "none";
             }
         }
@@ -83,31 +109,40 @@ function getStoreData(dataStore) {
         getVal = btnValueGet();
         for (let i = 0; i < getVal; i++) {
             pro = "productValue" + i;
-            var row = table.insertRow(i);
             var data = JSON.parse(localStorage.getItem(pro));
             sortArr.push(data[1]);
         }
         sortArr.sort()
-        console.log(sortArr.sort()[0]);
+        console.log(sortArr.sort());
+        var sortIndex = 0;
         for (let i = 0; i < getVal; i++) {
             pro = "productValue" + i;
             var row = table.insertRow(i);
             var data = JSON.parse(localStorage.getItem(pro));
             for (let j = 0; j < data.length + 1; j++) {
                 var cell = row.insertCell(j);
-                var st = sortArr[j];
                 if (j == 1) {
-                    cell.innerHTML = st;
+                    cell.innerHTML = sortArr[sortIndex];
+                    sortIndex++;
                 }
                 else if (j == 2) {
                     cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
                 }
+                else if (j == 3) {
+                    cell.innerHTML = "₹ " + data[j];
+                }
                 else if (j == 5) {
-                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Update</button> <button class='btn btn-primary' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
+                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
                 }
                 else {
                     cell.innerHTML = data[j];
                 }
+            }
+        }
+        var tbodyRowCount = table.rows.length;
+        for (let i = 0; i < tbodyRowCount; i++) {
+            if (i > 2) {
+                table.rows[i].style.display = "none";
             }
         }
     }
@@ -118,42 +153,57 @@ function getStoreData(dataStore) {
             var row = table.insertRow(i);
             var data = JSON.parse(localStorage.getItem(pro));
             sortArr.push(data[3]);
-            sortArr.sort();
+        }
+        sortArr.sort()
+        console.log(sortArr.sort());
+        var sortIndex = 0;
+        for (let i = 0; i < getVal; i++) {
+            pro = "productValue" + i;
+            var row = table.insertRow(i);
+            var data = JSON.parse(localStorage.getItem(pro));
             for (let j = 0; j < data.length + 1; j++) {
                 var cell = row.insertCell(j);
-                if (j == 2) {
+                if (j == 3) {
+                    cell.innerHTML = sortArr[sortIndex];
+                    sortIndex++;
+                }
+                else if (j == 2) {
                     cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
                 }
                 else if (j == 3) {
-                    cell.innerHTML = sortArr[j]
+                    cell.innerHTML = "₹ " + data[j];
                 }
                 else if (j == 5) {
-                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Update</button> <button class='btn btn-primary' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
+                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
                 }
                 else {
                     cell.innerHTML = data[j];
                 }
             }
         }
+        var tbodyRowCount = table.rows.length;
+        for (let i = 0; i < tbodyRowCount; i++) {
+            if (i > 2) {
+                table.rows[i].style.display = "none";
+            }
+        }
     }
     else { //defult all local data display
-        getVal = btnValueGet(); 
-        console.log(count);
+        getVal = btnValueGet();
         for (let i = 0; i < getVal; i++) {
             pro = "productValue" + i;
             var row = table.insertRow(i);
-            if(count == 1)
-            {
-                row.style.display = "none";
-            }
             var data = JSON.parse(localStorage.getItem(pro));
             for (let j = 0; j < data.length + 1; j++) {
                 var cell = row.insertCell(j);
                 if (j == 2) {
                     cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
                 }
+                else if (j == 3) {
+                    cell.innerHTML = "₹ " + data[j];
+                }
                 else if (j == 5) {
-                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Update</button> <button class='btn btn-primary' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
+                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
                 }
                 else {
                     cell.innerHTML = data[j];
@@ -161,79 +211,60 @@ function getStoreData(dataStore) {
             }
         }
     }
-    count = 1;
 }
 //product delete function
 function productDelete(pro) {
     if (pro) {
-        localStorage.removeItem(pro);
-        getVal -= 1;
-        btnValueSet(getVal);
-        alert("Recorde Deleted!!");
+        if (confirm("You want to delete your data!")) {
+            localStorage.removeItem(pro);
+            getVal -= 1;
+            btnValueSet(getVal);
+        }
     }
 }
 //product update function
 function productUpdate(pro) {
+    document.getElementById("btnSubmit").style.display = "none";
+    document.getElementById("btnUpdate").style.display = "block";
+    document.getElementById("showImage").style.display = "block";
     if (pro) {
         data = JSON.parse(localStorage.getItem(pro));
     }
+    document.getElementById('productId').readOnly = true;
     editData();
 }
 function editData() {
-    document.getElementById('editdata').innerHTML = ` <br/><hr/>  <div class="container my-3">
-                                                        <h1 class="text-center"><u><i>Edit Product Data</i></u></h1>
-                                                        </div>
-                                                        <div class="container my-5">
-                                                            <form action="#" method="post" class="row g-3">
-                                                                <div class="col-md-6">
-                                                                    <label for="productId" class="form-label">Product ID</label>
-                                                                    <input type="text" class="form-control" name="productId" id="editProId" readonly>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <label for="ProductName" class="form-label">Product Name</label>
-                                                                    <input type="text" class="form-control" name="ProductName" id="editProName" required>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <label for="selectImage" class="form-label"> Select Image</label>
-                                                                    <input class="form-control" type="file" id="editimage" required>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <label for="Price" class="form-label">Price</label>
-                                                                    <input type="text" class="form-control" id="editprice" required>
-                                                                </div>
-                                                                <div class="col-12">
-                                                                    <label for="Description" class="form-label">Description</label>
-                                                                    <textarea class="form-control" id="editdescription" rows="3" required></textarea>
-                                                                </div>
-                                                                <div class="col-12">
-                                                                    <button type="button" class="btn btn-primary" onclick="setEditdata()">Submit</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>`;
     getEditData();
 }
 //get edited data
 function getEditData() {
-    proId = document.getElementById('editProId').value = data[0];
-    proName = document.getElementById('editProName').value = data[1];
-    proPrice = document.getElementById('editprice').value = data[3];
-    proDecpt = document.getElementById('editdescription').value = data[4];
+    proId = document.getElementById('productId').value = data[0];
+    proName = document.getElementById('ProductName').value = data[1];
+    document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + data[2] + "' width='120em'/>";
+    proPrice = document.getElementById('price').value = data[3];
+    proDecpt = document.getElementById('description').value = data[4];
+}
+function changeImage()
+{
+    proImage = document.getElementById('image').files[0].name;
+    document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + proImage + "' width='120em'/>";
 }
 //update edited data
 function updatedData() {
-    proId = document.getElementById('editProId').value;
-    proName = document.getElementById('editProName').value;
-    proImage = document.getElementById('editimage').files[0].name;
-    proPrice = document.getElementById('editprice').value;
-    proDecpt = document.getElementById('editdescription').value;
+    proId = document.getElementById('productId').value;
+    proName = document.getElementById('ProductName').value;
+    proImage = document.getElementById('image').files[0].name;
+    proPrice = document.getElementById('price').value;
+    proDecpt = document.getElementById('description').value;
 }
 //store edited data
 function setEditdata() {
     updatedData();
     createArray();
     if (pro) {
-        localStorage.setItem(pro, JSON.stringify(proArray));
-        alert("Recorde Updated!!");
+        if (confirm("You want to edit your data!")) {
+            localStorage.setItem(pro, JSON.stringify(proArray));
+        }
     }
 }
 //set key value
