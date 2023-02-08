@@ -18,11 +18,11 @@
         <form action="#" method="post" class="row g-3">
             <div class="col-md-6">
                 <label for="productId" class="form-label">Product ID <span class="spanText" id="errorMessageId"></span></label>
-                <input type="text" class="form-control" name="productId" id="productId" required>
+                <input type="text" class="form-control" name="productId" id="productId" onchange="validate()" required>
             </div>
             <div class="col-md-6">
                 <label for="ProductName" class="form-label">Product Name <span class="spanText" id="errorMessageName"></span></label>
-                <input type="text" class="form-control" name="ProductName" id="ProductName" required>
+                <input type="text" class="form-control" name="ProductName" id="ProductName" onchange="validate()" required>
             </div>
             <div class="col-md-6">
                 <label for="Price" class="form-label">Price <span class="spanText" id="errorMessagePrice"></span></label>
@@ -30,7 +30,7 @@
             </div>
             <div class="col-md-6">
                 <label for="selectImage" class="form-label"> Select Image <span class="spanText" id="errorMessageImage"></span></label>
-                <input class="form-control" type="file" id="image" onchange="changeImage()" required>
+                <input class="form-control" type="file" id="image" onchange="changeImage()">
             </div>
             <div class="col-6">
                 <label for="Description" class="form-label">Description</label>
@@ -87,8 +87,6 @@
             <tbody id="proDetails">
             </tbody>
         </table>
-    </div>
-    <div id="editdata">
     </div>
     <!--js files-->
     <script src="js/main.js"></script>
