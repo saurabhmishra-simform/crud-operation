@@ -1,13 +1,17 @@
-var proArray = [];
+var productArray = [];
 var setVal;
 var getVal;
-var proId;
-var proName;
-var proImage;
-var proPrice;
-var proDecpt;
-var pro;
+var productId;
+var productName;
+var productImage;
+var productPrice;
+var productMessage;
+var productKey;
+let price;
+var sortVal;
+var table;
 var data;
+var row;
 var sortArr = [];
 //defult data show
 getStoreData(0)
@@ -15,18 +19,18 @@ getStoreData(0)
 function validateform(id) {
     getFormValue();
     var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.jfif|\.gif)$/i;
-    if (isNaN(proId) || proId < 1) {
+    if (isNaN(productId) || productId < 1) {
         document.getElementById('errorMessageId').innerText = "Please input a number only!!";
     }
-    else if (proName == null || proName == "") {
+    else if (productName == null || productName == "") {
         document.getElementById('errorMessageName').innerText = "Please input a product name!!";
     }
-    else if (!allowedExtensions.exec(proImage)) {
+    else if (!allowedExtensions.exec(productImage)) {
         document.getElementById('errorMessageImage').innerText = "File type is not allowed!!";
         proImage.value = '';
         return false;
     }
-    else if (isNaN(proPrice) || proPrice < 1) {
+    else if (isNaN(productPrice) || productPrice < 1) {
         document.getElementById('errorMessagePrice').innerText = "Please input a number only!!";
     }
     else {
@@ -44,22 +48,24 @@ function formData() {
     getFormValue();
     createArray();
     storeData();
+    getStoreData(0);
+    showTable(0)
 }
 //get form value function
 function getFormValue() {
-    proId = document.getElementById('productId').value;
-    proName = document.getElementById('ProductName').value;
-    proImage = document.getElementById('image').files[0].name;
-    proPrice = document.getElementById('price').value;
-    proDecpt = document.getElementById('description').value;
+    productId = document.getElementById('productId').value;
+    productName = document.getElementById('ProductName').value;
+    productImage = document.getElementById('image').files[0].name;
+    productPrice = document.getElementById('price').value;
+    productMessage = document.getElementById('description').value;
 }
 //create array function
 function createArray() {
-    proArray.push(proId, proName, proImage, proPrice, proDecpt);
+    productArray.push(productId, productName, productImage, productPrice, productMessage);
 }
 //store data function
 function storeData() {
-    let arrayJSON = JSON.stringify(proArray);
+    let arrayJSON = JSON.stringify(productArray);
     getVal = btnValueGet();
     if (getVal == null) {
         localStorage.setItem('productValue0', arrayJSON);
@@ -67,23 +73,29 @@ function storeData() {
         btnValueSet(getVal);
     }
     else {
-        let pro = "productValue" + getVal;
-        localStorage.setItem(pro, arrayJSON);
+        productKey = "productValue" + getVal;
+        localStorage.setItem(productKey, arrayJSON);
         getVal += 1;
         btnValueSet(getVal);
     }
 }
 function validate() { 
     getVal = btnValueGet();
-    proId = document.getElementById('productId').value;
-    proName = document.getElementById('ProductName').value;
+    productId = document.getElementById('productId').value;
+    productName = document.getElementById('ProductName').value;
     for (let i = 0; i < getVal; i++) {
-        pro = "productValue" + i;
-        var data = JSON.parse(localStorage.getItem(pro));
+        productKey = "productValue" + i;
+        var data = JSON.parse(localStorage.getItem(productKey));
         console.log(data[0]);
-        if(proId == data[0] || proName == data[1])
+        if(productId == data[0])
         {
-            let msg = "Product ID and Name should be unique"; 
+            let msg = "Product ID should be unique"; 
+            alert(msg);
+            return false; 
+        }
+        if(productName == data[1])
+        {
+            let msg = "Product name should be unique"; 
             alert(msg);
             return false; 
         }
@@ -91,170 +103,127 @@ function validate() {
 }
 //store data function
 function getStoreData(dataStore) {
-    var table = document.getElementById("proDetails");
+    table = document.getElementById("proDetails");
     getVal = btnValueGet();
-    let price;
-    var sortVal;
     sortVal = getVal-1;
-    if (dataStore == 'ser') { //search condition by search button
-        var serData = document.getElementById('dataFilter').value;
-        let ser = "productValue" + serData;
-        var row = table.insertRow(0);
-        var data = JSON.parse(localStorage.getItem(ser));
-        for (let j = 0; j < data.length + 1; j++) {
-            var cell = row.insertCell(j);
-            if (j == 2) {
-                cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
-            }
-            else if (j == 3) {
-                price = Number(data[j]).toFixed(2)
-                cell.innerHTML = "₹ " + price;
-            }
-            else if (j == 5) {
-                cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + ser + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + ser + "'>Delete</button>";
-            }
-            else {
-                cell.innerHTML = data[j];
-            }
-        }
-        var tbodyRowCount = table.rows.length;
-        for (let i = 0; i < tbodyRowCount; i++) {
-            if (i > 0) {
-                table.rows[i].style.display = "none";
-            }
-        }
+    if (dataStore == 'searchById') { //search condition by search button
+        var searchData = document.getElementById('dataFilter').value;
+        productKey = "productValue" + searchData;
+        row = table.insertRow(0);
+        showProduct();
+        showTable(dataStore);    
     }
     else if (dataStore == 'pName') { //search condition by product name
-        for (let i = 0; i < getVal; i++) {
-            pro = "productValue" + sortVal;
-            sortVal--;
-            var row = table.insertRow(i);
-            var data = JSON.parse(localStorage.getItem(pro));
-            for (let j = 0; j < data.length + 1; j++) {
-                var cell = row.insertCell(j);
-                if (j == 1) {
-                    cell.innerHTML = data[j];
-                }
-                else if (j == 2) {
-                    cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
-                }
-                else if (j == 3) {
-                    price = Number(data[j]).toFixed(2)
-                    cell.innerHTML = "₹ " + price;
-                }
-                else if (j == 5) {
-                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
-                }
-                else {
-                    cell.innerHTML = data[j];
-                }
-            }
-        }
-        var tbodyRowCount = table.rows.length;
-        for (let i = 0; i < tbodyRowCount; i++) {
-            if (i > getVal-1) {
-                table.rows[i].style.display = "none";
-            }
-        }
+        sortProduct();
     }
     else if (dataStore == 'pricePro') { //search condition by product price
-        for (let i = 0; i < getVal; i++) {
-            pro = "productValue" + sortVal;
-            sortVal--;
-            var row = table.insertRow(i);
-            var data = JSON.parse(localStorage.getItem(pro));
-            for (let j = 0; j < data.length + 1; j++) {
-                var cell = row.insertCell(j);
-                if (j == 3) {
-                    price = Number(data[j]).toFixed(2)
-                    cell.innerHTML = "₹ " + price;
-                }
-                else if (j == 2) {
-                    cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
-                }
-                else if (j == 5) {
-                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
-                }
-                else {
-                    cell.innerHTML = data[j];
-                }
-            }
-        }
-        var tbodyRowCount = table.rows.length;
-        for (let i = 0; i < tbodyRowCount; i++) {
-            if (i > getVal - 1) {
-                table.rows[i].style.display = "none";
-            }
-        }
+        sortProduct();
     }
     else { //defult all local data display
         getVal = btnValueGet();
         for (let i = 0; i < getVal; i++) {
-            pro = "productValue" + i;
-            var row = table.insertRow(i);
-            var data = JSON.parse(localStorage.getItem(pro));
-            for (let j = 0; j < data.length + 1; j++) {
-                var cell = row.insertCell(j);
-                if (j == 2) {
-                    cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
-                }
-                else if (j == 3) {
-                    price = Number(data[j]).toFixed(2)
-                    cell.innerHTML = "₹ " + price;
-                }
-                else if (j == 5) {
-                    cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + pro + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + pro + "'>Delete</button>";
-                }
-                else {
-                    cell.innerHTML = data[j];
-                }
+            productKey = "productValue" + i;
+            row = table.insertRow(i);
+            showProduct();
+        }
+    }
+}
+function showProduct()
+{
+    data = JSON.parse(localStorage.getItem(productKey));
+    for (let j = 0; j < data.length + 1; j++) {
+        var cell = row.insertCell(j);
+        if (j == 2) {
+            cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
+        }
+        else if (j == 3) {
+            price = Number(data[j]).toFixed(2)
+            cell.innerHTML = "₹ " + price;
+        }
+        else if (j == 5) {
+            cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + productKey + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + productKey + "'>Delete</button>";
+        }
+        else {
+            cell.innerHTML = data[j];
+        }
+    }
+}
+function sortProduct()
+{
+    for (let i = 0; i < getVal; i++) {
+        productKey = "productValue" + sortVal;
+        sortVal--;
+        row = table.insertRow(i);
+        showProduct();
+        showTable(0); 
+    }
+    
+}
+function showTable(dataStore)
+{
+    var tbodyRowCount = table.rows.length;
+    for (let i = 0; i < tbodyRowCount; i++) {
+        if(dataStore == 'searchById')
+        {
+            if (i > 0) {
+                table.rows[i].style.display = "none";
             }
         }
+        else
+        {
+            if (i > getVal - 1) {
+                table.rows[i].style.display = "none";
+            }
+        } 
     }
 }
 //product delete function
-function productDelete(pro) {
-    if (pro) {
+function productDelete(productKey) {
+    if (productKey) {
         if (confirm("You want to delete your data!")) {
-            localStorage.removeItem(pro);
+            localStorage.removeItem(productKey);
             getVal -= 1;
             btnValueSet(getVal);
         }
+        getStoreData(0);
+        showTable(0)
     }
 }
 //product update function
-var editpro;
-function productUpdate(pro) {
+var editProductKey;
+function productUpdate(productKey) {
     document.getElementById("btnSubmit").style.display = "none";
     document.getElementById("btnUpdate").style.display = "block";
     document.getElementById("showImage").style.display = "block";
-    if (pro) {
-        data = JSON.parse(localStorage.getItem(pro));
+    if (productKey) {
+        data = JSON.parse(localStorage.getItem(productKey));
     }
     document.getElementById('productId').readOnly = true;
-    editpro = pro;
+    editProductKey = productKey;
     getEditData();
 }
 //get edited data
 function getEditData() {
-    proId = document.getElementById('productId').value = data[0];
-    proName = document.getElementById('ProductName').value = data[1];
+    productId = document.getElementById('productId').value = data[0];
+    productName = document.getElementById('ProductName').value = data[1];
     document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + data[2] + "' width='120em'/>";
-    proPrice = document.getElementById('price').value = data[3];
-    proDecpt = document.getElementById('description').value = data[4];
+    productPrice = document.getElementById('price').value = data[3];
+    productDecpt = document.getElementById('description').value = data[4];
 }
 function changeImage() {
-    proImage = document.getElementById('image').files[0].name;
-    document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + proImage + "' width='120em'/>";
+    productImage = document.getElementById('image').files[0].name;
+    document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + productImage + "' width='120em'/>";
 }
 //store edited data
 function setEditdata() {
     getFormValue();
     createArray();
-    if (editpro) {
+    if (editProductKey) {
         if (confirm("You want to edit your data!")) {
-            localStorage.setItem(editpro, JSON.stringify(proArray));
+            localStorage.setItem(editProductKey, JSON.stringify(productArray));
         }
+        getStoreData(0);
+        showTable(0)
     }
 }
 //set key value
