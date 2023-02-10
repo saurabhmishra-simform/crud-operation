@@ -1,20 +1,15 @@
-var productArray = [];
-var setVal;
-var getVal;
+var newProduct;
 var productId;
 var productName;
 var productImage;
 var productPrice;
 var productMessage;
 var productKey;
-let price;
-var sortVal;
-var table;
 var data;
-var row;
-var sortArr = [];
+var product;
 //defult data show
-getStoreData(0)
+document.onload = showProduct();
+
 //form validation
 function validateform(id) {
     getFormValue();
@@ -43,16 +38,35 @@ function validateform(id) {
         }
     }
 }
+
+function validate() {
+    productId = document.getElementById('productId').value;
+    productName = document.getElementById('ProductName').value;
+    product = JSON.parse(localStorage.getItem("productDetail"));
+    product.forEach(function (element){
+        if(element.id==productId)
+        {
+            let msg = "Product ID should be unique";
+            alert(msg);
+            return false;
+        }
+        if(element.name == productName)
+        {
+            let msg = "Product name should be unique";
+            alert(msg);
+            return false;
+        }
+    })
+}
 //store data function
 function formData() {
-    getFormValue();
-    createArray();
-    storeData();
-    getStoreData(0);
-    showTable(0)
+    getProduct();
+    createProduct();
+    storeProduct();
+    showProduct();
 }
 //get form value function
-function getFormValue() {
+function getProduct() {
     productId = document.getElementById('productId').value;
     productName = document.getElementById('ProductName').value;
     productImage = document.getElementById('image').files[0].name;
@@ -60,135 +74,50 @@ function getFormValue() {
     productMessage = document.getElementById('description').value;
 }
 //create array function
-function createArray() {
-    productArray.push(productId, productName, productImage, productPrice, productMessage);
+function createProduct() {
+    newProduct = {
+        id: productId,
+        name: productName,
+        price: productPrice,
+        image: productImage,
+        message: productMessage,
+    };
 }
 //store data function
-function storeData() {
-    let arrayJSON = JSON.stringify(productArray);
-    getVal = btnValueGet();
-    if (getVal == null) {
-        localStorage.setItem('productValue0', arrayJSON);
-        getVal += 1;
-        btnValueSet(getVal);
-    }
-    else {
-        productKey = "productValue" + getVal;
-        localStorage.setItem(productKey, arrayJSON);
-        getVal += 1;
-        btnValueSet(getVal);
-    }
+function storeProduct() {
+    product = JSON.parse(localStorage.getItem('productDetail')) ?? [];
+    product.push(newProduct)
+    localStorage.setItem('productDetail', JSON.stringify(product));
 }
-function validate() { 
-    getVal = btnValueGet();
-    productId = document.getElementById('productId').value;
-    productName = document.getElementById('ProductName').value;
-    for (let i = 0; i < getVal; i++) {
-        productKey = "productValue" + i;
-        var data = JSON.parse(localStorage.getItem(productKey));
-        console.log(data[0]);
-        if(productId == data[0])
-        {
-            let msg = "Product ID should be unique"; 
-            alert(msg);
-            return false; 
-        }
-        if(productName == data[1])
-        {
-            let msg = "Product name should be unique"; 
-            alert(msg);
-            return false; 
-        }
-    }
+
+function showProduct(ProductID) {
+    let table = "";
+    product = (ProductID) ? ProductID :  JSON.parse(localStorage.getItem("productDetail")) ?? [];
+    product.forEach( function (element,i){
+        table += `<tr>
+                    <td>${element.id}</td>
+                    <td>${element.name}</td>
+                    <td><img src="img\\${element.image}" width="60em"/></td>
+                    <td>${element.price} </td>
+                    <td>${element.message}</td>
+                    <td><button class='btn btn-primary' onclick='productUpdate(this.id)' id='${i}'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='${i}'>Delete</button></td>
+                  </tr>`;
+    });
+    document.getElementById("proDetails").innerHTML = table;
 }
-//store data function
-function getStoreData(dataStore) {
-    table = document.getElementById("proDetails");
-    getVal = btnValueGet();
-    sortVal = getVal-1;
-    if (dataStore == 'searchById') { //search condition by search button
-        var searchData = document.getElementById('dataFilter').value;
-        productKey = "productValue" + searchData;
-        row = table.insertRow(0);
-        showProduct();
-        showTable(dataStore);    
-    }
-    else if (dataStore == 'pName') { //search condition by product name
-        sortProduct();
-    }
-    else if (dataStore == 'pricePro') { //search condition by product price
-        sortProduct();
-    }
-    else { //defult all local data display
-        getVal = btnValueGet();
-        for (let i = 0; i < getVal; i++) {
-            productKey = "productValue" + i;
-            row = table.insertRow(i);
-            showProduct();
-        }
-    }
-}
-function showProduct()
-{
-    data = JSON.parse(localStorage.getItem(productKey));
-    for (let j = 0; j < data.length + 1; j++) {
-        var cell = row.insertCell(j);
-        if (j == 2) {
-            cell.innerHTML = "<img src='" + 'img\\' + data[j] + "' width='60em'/>";
-        }
-        else if (j == 3) {
-            price = Number(data[j]).toFixed(2)
-            cell.innerHTML = "₹ " + price;
-        }
-        else if (j == 5) {
-            cell.innerHTML = "<button class='btn btn-primary' onclick='productUpdate(this.id)' id='" + productKey + "'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='" + productKey + "'>Delete</button>";
-        }
-        else {
-            cell.innerHTML = data[j];
-        }
-    }
-}
-function sortProduct()
-{
-    for (let i = 0; i < getVal; i++) {
-        productKey = "productValue" + sortVal;
-        sortVal--;
-        row = table.insertRow(i);
-        showProduct();
-        showTable(0); 
-    }
-    
-}
-function showTable(dataStore)
-{
-    var tbodyRowCount = table.rows.length;
-    for (let i = 0; i < tbodyRowCount; i++) {
-        if(dataStore == 'searchById')
-        {
-            if (i > 0) {
-                table.rows[i].style.display = "none";
-            }
-        }
-        else
-        {
-            if (i > getVal - 1) {
-                table.rows[i].style.display = "none";
-            }
-        } 
-    }
-}
+
 //product delete function
 function productDelete(productKey) {
+    product = JSON.parse(localStorage.getItem("productDetail")) ?? [] ;
     if (productKey) {
         if (confirm("You want to delete your data!")) {
-            localStorage.removeItem(productKey);
-            getVal -= 1;
-            btnValueSet(getVal);
+            product.splice(productKey, 1);
+            localStorage.setItem("productDetail", JSON.stringify(product));
         }
-        getStoreData(0);
-        showTable(0)
     }
+    showProduct();
 }
+
 //product update function
 var editProductKey;
 function productUpdate(productKey) {
@@ -196,42 +125,71 @@ function productUpdate(productKey) {
     document.getElementById("btnUpdate").style.display = "block";
     document.getElementById("showImage").style.display = "block";
     if (productKey) {
-        data = JSON.parse(localStorage.getItem(productKey));
+        product = JSON.parse(localStorage.getItem("productDetail")) ?? [];
     }
+    productId = document.getElementById('productId').value = product[productKey].id;
+    productName = document.getElementById('ProductName').value = product[productKey].name;
+    document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + product[productKey].image + "' width='120em'/>";
+    productPrice = document.getElementById('price').value = product[productKey].price;
+    productDecpt = document.getElementById('description').value = product[productKey].message;
     document.getElementById('productId').readOnly = true;
     editProductKey = productKey;
-    getEditData();
 }
-//get edited data
-function getEditData() {
-    productId = document.getElementById('productId').value = data[0];
-    productName = document.getElementById('ProductName').value = data[1];
-    document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + data[2] + "' width='120em'/>";
-    productPrice = document.getElementById('price').value = data[3];
-    productDecpt = document.getElementById('description').value = data[4];
-}
+//get edited 
 function changeImage() {
     productImage = document.getElementById('image').files[0].name;
     document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + productImage + "' width='120em'/>";
 }
 //store edited data
 function setEditdata() {
-    getFormValue();
-    createArray();
-    if (editProductKey) {
-        if (confirm("You want to edit your data!")) {
-            localStorage.setItem(editProductKey, JSON.stringify(productArray));
-        }
-        getStoreData(0);
-        showTable(0)
+    product[editProductKey].name = document.getElementById('ProductName').value;
+    product[editProductKey].price = document.getElementById('price').value;
+    product[editProductKey].image = document.getElementById('image').files[0].name
+    product[editProductKey].message = document.getElementById('description').value
+    if (confirm("You want to edit your data!")) {
+        localStorage.setItem('productDetail', JSON.stringify(product));
     }
+    showProduct();
 }
-//set key value
-function btnValueSet(setVal) {
-    localStorage.setItem('btnVal', JSON.stringify(setVal));
+
+// // sorting Function
+function sortPrice(id)
+{
+    let lowPrice = document.getElementById('sortHighToLow');
+    let highPrice = document.getElementById('sortLowToHigh');
+    lowPrice.style.display = (id=='sortLowToHigh') ? 'block' : 'none';
+    highPrice.style.display = (id=='sortLowToHigh') ? 'none' : 'block';
 }
-//set key value
-function btnValueGet() {
-    var data = JSON.parse(localStorage.getItem('btnVal'));
-    return data;
+function sortProduct(id)
+{
+    data = JSON.parse(localStorage["productDetail"]);
+    switch(id)
+    {
+        case 'sortLowToHigh':
+            sortPrice(id);
+            data.sort((a, b) => { return a.price - b.price; });
+            break;
+        case 'sortHighToLow':
+            sortPrice(id);
+            data.sort((a, b) => { return b.price - a.price; });
+            break;
+        case 'sortId':
+            data.sort((a, b) => { return a.id - b.id; });
+            break;
+        case 'sortName':
+            data.sort((a, b) => { return a.name.toString().localeCompare(b.name.toString());});
+            break;
+    }
+    localStorage.setItem('productDetail', JSON.stringify(data));
+    showProduct();
 }
+
+function searchId()
+{
+    var ProductID;
+    product = JSON.parse(localStorage.getItem("productDetail"));
+    var searchData = document.getElementById('dataFilter').value;
+    ProductID=product.filter((productSearch) => productSearch['id'].toLowerCase().includes(searchData.toLowerCase()));
+    showProduct(ProductID);
+}
+
