@@ -12,7 +12,7 @@ document.onload = showProduct();
 
 //form validation
 function validateform(id) {
-    getFormValue();
+    getProduct();
     var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.jfif|\.gif)$/i;
     if (isNaN(productId) || productId < 1) {
         document.getElementById('errorMessageId').innerText = "Please input a number only!!";
@@ -42,7 +42,7 @@ function validateform(id) {
 function validate() {
     productId = document.getElementById('productId').value;
     productName = document.getElementById('ProductName').value;
-    product = JSON.parse(localStorage.getItem("productDetail"));
+    product = JSON.parse(localStorage.getItem("productDetail")) ?? [];
     product.forEach(function (element){
         if(element.id==productId)
         {
@@ -137,6 +137,7 @@ function productUpdate(productKey) {
 }
 //get edited 
 function changeImage() {
+    document.getElementById("showImage").style.display = "block";
     productImage = document.getElementById('image').files[0].name;
     document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + productImage + "' width='120em'/>";
 }
@@ -187,7 +188,7 @@ function sortProduct(id)
 function searchId()
 {
     var ProductID;
-    product = JSON.parse(localStorage.getItem("productDetail"));
+    product = JSON.parse(localStorage.getItem("productDetail")) ?? [];
     var searchData = document.getElementById('dataFilter').value;
     ProductID=product.filter((productSearch) => productSearch['id'].toLowerCase().includes(searchData.toLowerCase()));
     showProduct(ProductID);
