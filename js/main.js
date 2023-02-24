@@ -1,77 +1,196 @@
-var proArray = [];
-var setVal;
-var getVal;
-var proId;
-var proName;
-var proImage;
-var proPrice;
-var proDecpt;
-getStoreData();
-function formData() {
-    getFormValue();
-    createArray();
-    storeData();
-}
+var newProduct;
+var productId;
+var productName;
+var productImage;
+var productPrice;
+var productMessage;
+var productKey;
+var data;
+var product;
+//defult data show
+document.onload = showProduct();
 
-function getFormValue() {
-    proId = document.getElementById('productId').value;
-    proName = document.getElementById('ProductName').value;
-    proImage = document.getElementById('image').value;
-    proPrice = document.getElementById('price').value;
-    proDecpt = document.getElementById('description').value;
-}
-
-function createArray() {
-    proArray.push(proId, proName, proImage, proPrice, proDecpt);
-}
-
-function storeData() {
-    getVal = btnValueGet();
-    //console.log(getVal);
-    if (getVal == null) {
-        localStorage.setItem('productValue0', JSON.stringify(proArray));
-        getVal += 1;
-        btnValueSet(getVal);
+//form validation
+function validateform(id) {
+    getProduct();
+    var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.jfif|\.gif)$/i;
+    if (isNaN(productId) || productId < 1) {
+        document.getElementById('errorMessageId').innerText = "Please input a number only!!";
+    }
+    else if (productName == null || productName == "") {
+        document.getElementById('errorMessageName').innerText = "Please input a product name!!";
+    }
+    else if (!allowedExtensions.exec(productImage)) {
+        document.getElementById('errorMessageImage').innerText = "File type is not allowed!!";
+        proImage.value = '';
+        return false;
+    }
+    else if (isNaN(productPrice) || productPrice < 1) {
+        document.getElementById('errorMessagePrice').innerText = "Please input a number only!!";
     }
     else {
-        let pro = "productValue" + getVal;
-        localStorage.setItem(pro, JSON.stringify(proArray));
-        getVal += 1;
-        btnValueSet(getVal);
-    }
-
-}
-
-function getStoreData(){
-    getVal = btnValueGet();
-    var table = document.getElementById("proDetails");
-    for(let i=0;i<getVal;i++){
-        let pro = "productValue" + i;
-        var row = table.insertRow(i);
-        var data = JSON.parse(localStorage.getItem(pro));
-        for (let j = 0 ;j < data.length+1 ;j++ )
-        {
-            var cell = row.insertCell(j);
-            if(j==5)
-            {
-                cell.innerHTML = "<button>Update</button> <button>Delete</button>";
-            }
-            else
-            {
-                cell.innerHTML = data[j];
-            } 
+        if (id == 'add') {
+            formData();
+            alert('Product added successfull!!');
         }
-        console.log(pro);  
-        
+        else {
+            setEditdata();
+        }
     }
-    
 }
 
-function btnValueSet(setVal) {
-    localStorage.setItem('btnVal', JSON.stringify(setVal));
+function validate() {
+    productId = document.getElementById('productId').value;
+    productName = document.getElementById('ProductName').value;
+    product = JSON.parse(localStorage.getItem("productDetail")) ?? [];
+    product.forEach(function (element){
+        if(element.id==productId)
+        {
+            let msg = "Product ID should be unique";
+            alert(msg);
+            return false;
+        }
+        if(element.name == productName)
+        {
+            let msg = "Product name should be unique";
+            alert(msg);
+            return false;
+        }
+    })
+}
+//store data function
+function formData() {
+    getProduct();
+    createProduct();
+    storeProduct();
+    showProduct();
+}
+//get form value function
+function getProduct() {
+    productId = document.getElementById('productId').value;
+    productName = document.getElementById('ProductName').value;
+    productImage = document.getElementById('image').files[0].name;
+    productPrice = document.getElementById('price').value;
+    productMessage = document.getElementById('description').value;
+}
+//create array function
+function createProduct() {
+    newProduct = {
+        id: productId,
+        name: productName,
+        price: productPrice,
+        image: productImage,
+        message: productMessage,
+    };
+}
+//store data function
+function storeProduct() {
+    product = JSON.parse(localStorage.getItem('productDetail')) ?? [];
+    product.push(newProduct)
+    localStorage.setItem('productDetail', JSON.stringify(product));
 }
 
-function btnValueGet() {
-    var data = JSON.parse(localStorage.getItem('btnVal'));
-    return data;
+function showProduct(ProductID) {
+    let table = "";
+    product = (ProductID) ? ProductID :  JSON.parse(localStorage.getItem("productDetail")) ?? [];
+    product.forEach( function (element,i){
+        table += `<tr>
+                    <td>${element.id}</td>
+                    <td>${element.name}</td>
+                    <td><img src="img\\${element.image}" width="60em"/></td>
+                    <td>${element.price} </td>
+                    <td>${element.message}</td>
+                    <td><button class='btn btn-primary' onclick='productUpdate(this.id)' id='${i}'>Edit</button> <button class='btn btn-danger' onclick='productDelete(this.id)' id='${i}'>Delete</button></td>
+                  </tr>`;
+    });
+    document.getElementById("proDetails").innerHTML = table;
 }
+
+//product delete function
+function productDelete(productKey) {
+    product = JSON.parse(localStorage.getItem("productDetail")) ?? [] ;
+    if (productKey) {
+        if (confirm("You want to delete your data!")) {
+            product.splice(productKey, 1);
+            localStorage.setItem("productDetail", JSON.stringify(product));
+        }
+    }
+    showProduct();
+}
+
+//product update function
+var editProductKey;
+function productUpdate(productKey) {
+    document.getElementById("btnSubmit").style.display = "none";
+    document.getElementById("btnUpdate").style.display = "block";
+    document.getElementById("showImage").style.display = "block";
+    if (productKey) {
+        product = JSON.parse(localStorage.getItem("productDetail")) ?? [];
+    }
+    productId = document.getElementById('productId').value = product[productKey].id;
+    productName = document.getElementById('ProductName').value = product[productKey].name;
+    document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + product[productKey].image + "' width='120em'/>";
+    productPrice = document.getElementById('price').value = product[productKey].price;
+    productDecpt = document.getElementById('description').value = product[productKey].message;
+    document.getElementById('productId').readOnly = true;
+    editProductKey = productKey;
+}
+//get edited 
+function changeImage() {
+    document.getElementById("showImage").style.display = "block";
+    productImage = document.getElementById('image').files[0].name;
+    document.getElementById("showImage").innerHTML = "<img src='" + 'img\\' + productImage + "' width='120em'/>";
+}
+//store edited data
+function setEditdata() {
+    product[editProductKey].name = document.getElementById('ProductName').value;
+    product[editProductKey].price = document.getElementById('price').value;
+    product[editProductKey].image = document.getElementById('image').files[0].name
+    product[editProductKey].message = document.getElementById('description').value
+    if (confirm("You want to edit your data!")) {
+        localStorage.setItem('productDetail', JSON.stringify(product));
+    }
+    showProduct();
+}
+
+// // sorting Function
+function sortPrice(id)
+{
+    let lowPrice = document.getElementById('sortHighToLow');
+    let highPrice = document.getElementById('sortLowToHigh');
+    lowPrice.style.display = (id=='sortLowToHigh') ? 'block' : 'none';
+    highPrice.style.display = (id=='sortLowToHigh') ? 'none' : 'block';
+}
+function sortProduct(id)
+{
+    data = JSON.parse(localStorage["productDetail"]);
+    switch(id)
+    {
+        case 'sortLowToHigh':
+            sortPrice(id);
+            data.sort((a, b) => { return a.price - b.price; });
+            break;
+        case 'sortHighToLow':
+            sortPrice(id);
+            data.sort((a, b) => { return b.price - a.price; });
+            break;
+        case 'sortId':
+            data.sort((a, b) => { return a.id - b.id; });
+            break;
+        case 'sortName':
+            data.sort((a, b) => { return a.name.toString().localeCompare(b.name.toString());});
+            break;
+    }
+    localStorage.setItem('productDetail', JSON.stringify(data));
+    showProduct();
+}
+
+function searchId()
+{
+    var ProductID;
+    product = JSON.parse(localStorage.getItem("productDetail")) ?? [];
+    var searchData = document.getElementById('dataFilter').value;
+    ProductID=product.filter((productSearch) => productSearch['id'].toLowerCase().includes(searchData.toLowerCase()));
+    showProduct(ProductID);
+}
+

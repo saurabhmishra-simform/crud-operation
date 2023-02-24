@@ -1,0 +1,9 @@
+.btnAddProduct{
+    display: block;
+}
+.btnEdit{
+    display: none;
+}
+.spanText{
+    color: red;
+}
